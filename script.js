@@ -13,20 +13,45 @@ const gameBoard = () => {
 	board.forEach((square, i) => {
 		square = document.createElement('div');
 		square.className = 'square';
-		if (i % 2 == 0) {
-			square.textContent = 'X';
-		} else {
-			square.textContent = '0';
-		}
+		// if (i % 2 == 0) {
+		// 	square.textContent = 'X';
+		// } else {
+		// 	square.textContent = '0';
+		// }
 		squares.appendChild(square);
 	});
+
+	// Event listener
+	Array.from(squares.children).forEach((square, i) => {
+		square.addEventListener('click', (e) => {
+			if (square.classList.contains('X')) {
+				return console.log('This spot has already been chosen!');
+			}
+			square.classList.add(game.activePlayer.marker);
+			square.textContent = game.activePlayer.marker;
+		});
+	});
+
+	return board;
 };
 
 gameBoard();
 
 // Player creation
-const playerFactory = (name, marker, turn) => {
-	return name, marker, turn;
+const playerCreator = (name, marker) => {
+	return { name, marker };
 };
-const player1 = playerFactory('Player 1', 'X', true);
-const player2 = playerFactory('Player 2', 'O', false);
+
+const game = (() => {
+	const player1 = playerCreator('Player 1', 'X');
+	const player2 = playerCreator('Player 2', 'O');
+
+	// Initial state
+	let activePlayer = player1;
+
+	// Change players
+
+	return {
+		activePlayer,
+	};
+})();
