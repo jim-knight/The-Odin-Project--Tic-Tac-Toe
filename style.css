@@ -1,0 +1,17 @@
+* {
+	box-sizing: border-box;
+}
+body {
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #212121;
+}
+#container {
+	width: 100%;
+	max-width: 1000px;
+	margin: 20px;
+	background: #fff;
+	color: #212121;
+}
