@@ -23,12 +23,14 @@ const gameBoard = () => {
 
 	// Event listener
 	Array.from(squares.children).forEach((square, i) => {
-		square.addEventListener('click', (e) => {
-			if (square.classList.contains('X')) {
+		square.addEventListener('click', () => {
+			if (square.classList.contains('clicked')) {
+				square.style.pointerEvents = 'none';
 				return console.log('This spot has already been chosen!');
 			}
-			square.classList.add(game.activePlayer.marker);
+			square.classList.add(game.activePlayer.marker, 'clicked');
 			square.textContent = game.activePlayer.marker;
+			game.changePlayer();
 		});
 	});
 
@@ -50,8 +52,15 @@ const game = (() => {
 	let activePlayer = player1;
 
 	// Change players
+	function changePlayer() {
+		this.activePlayer === player1
+			? (this.activePlayer = player2)
+			: (this.activePlayer = player1);
+		console.log(`Current player is: ${this.activePlayer.name}`);
+	}
 
 	return {
 		activePlayer,
+		changePlayer,
 	};
 })();
