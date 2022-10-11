@@ -40,3 +40,6 @@ body {
 .square:hover {
 	background-color: lightcyan;
 }
+.square > i {
+	pointer-events: none;
+}

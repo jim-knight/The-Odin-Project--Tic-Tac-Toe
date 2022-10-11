@@ -13,40 +13,56 @@ const gameBoard = () => {
 	board.forEach((square, i) => {
 		square = document.createElement('div');
 		square.className = 'square';
-		// if (i % 2 == 0) {
-		// 	square.textContent = 'X';
-		// } else {
-		// 	square.textContent = '0';
-		// }
 		squares.appendChild(square);
+		square.addEventListener('click', playerClick);
 	});
-
-	// Event listener
-	Array.from(squares.children).forEach((square, i) => {
-		square.addEventListener('click', () => {
-			if (square.classList.contains('clicked')) {
-				square.style.pointerEvents = 'none';
-				return console.log('This spot has already been chosen!');
-			}
-			square.classList.add(game.activePlayer.marker, 'clicked');
-			square.textContent = game.activePlayer.marker;
-			game.changePlayer();
-		});
-	});
-
 	return board;
 };
 
-gameBoard();
-
-// Player creation
-const playerCreator = (name, marker) => {
-	return { name, marker };
+// Checking for clicks on the board
+const playerClick = (e) => {
+	const squareOwner = e.target.dataset.owner;
+	if (squareOwner) {
+		return console.log(
+			'This spot has already been chosen by the other player! Select another square'
+		);
+	} else {
+		e.target.dataset.owner = game.activePlayer.name;
+		e.target.innerHTML = `<i class="fa-regular fa-${game.activePlayer.marker}"></i>`;
+	}
+	console.log(gameBoard.board);
+	game.checkWin();
+	game.changePlayer();
 };
+// Event listener
+// Array.from(squares.children).forEach((square, i) => {
+// 	square.addEventListener('click', () => {
+// 		// If square has already been clicked, return an error message and make user select again.
+// 		if (square.dataset.owner) {
+// 			return console.log(
+// 				'This spot has already been chosen! Select another square'
+// 			);
+// 		}
+// 		// Adds player to board array
+// 		board[i] = game.activePlayer.name;
+
+// 		// DOM adjustments
+// 		square.dataset.owner = game.activePlayer.name;
+// 		square.innerHTML = `<i class="fa-regular fa-${game.activePlayer.marker}"></i>`;
+
+// 		// Check for a win
+// 		game.checkWin();
+// 		game.changePlayer();
+// 	});
+// });
 
 const game = (() => {
-	const player1 = playerCreator('Player 1', 'X');
-	const player2 = playerCreator('Player 2', 'O');
+	// Player creation
+	const playerCreator = (name, marker) => {
+		return { name, marker };
+	};
+	const player1 = playerCreator('Player 1', 'xmark');
+	const player2 = playerCreator('Player 2', 'circle');
 
 	// Initial state
 	let activePlayer = player1;
@@ -56,11 +72,16 @@ const game = (() => {
 		this.activePlayer === player1
 			? (this.activePlayer = player2)
 			: (this.activePlayer = player1);
-		console.log(`Current player is: ${this.activePlayer.name}`);
 	}
+
+	// Check for a game win
+	function checkWin() {}
 
 	return {
 		activePlayer,
 		changePlayer,
+		checkWin,
 	};
 })();
+
+gameBoard();
