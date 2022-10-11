@@ -10,12 +10,21 @@ const players = (() => {
 	const player2 = playerCreator('Player 2', 'circle');
 	let currentPlayer = player1;
 
-	let switchActivePlayer = () => {
+	const resetActivePlayer = () => {
+		players.currentPlayer = players.player1;
+	};
+	const switchActivePlayer = () => {
 		players.currentPlayer === players.player1
 			? (players.currentPlayer = players.player2)
 			: (players.currentPlayer = players.player1);
 	};
-	return { player1, player2, currentPlayer, switchActivePlayer };
+	return {
+		player1,
+		player2,
+		currentPlayer,
+		resetActivePlayer,
+		switchActivePlayer,
+	};
 })();
 
 // Game variables module
@@ -29,7 +38,10 @@ const gameBoard = (() => {
 		board[i] = marker;
 	};
 
-	const resetBoard = () => board.fill('');
+	const resetBoard = () => {
+		board.fill('');
+		console.log(board);
+	};
 
 	// Win conditions
 	const winConditions = () => {
@@ -47,7 +59,8 @@ const gameBoard = (() => {
 				square[7] == curPlayer &&
 				square[8] == curPlayer)
 		) {
-			console.log('You win with a horizontal line!');
+			gameBoard.gameOver = true;
+			displayController.updateMsg('horizontal');
 		}
 		// Verticals
 		else if (
@@ -61,7 +74,8 @@ const gameBoard = (() => {
 				square[5] == curPlayer &&
 				square[8] == curPlayer)
 		) {
-			console.log('You win with a vertical line!');
+			gameBoard.gameOver = true;
+			displayController.updateMsg('vertical');
 		}
 		// Diagonals
 		else if (
@@ -72,7 +86,8 @@ const gameBoard = (() => {
 				square[4] == curPlayer &&
 				square[6] == curPlayer)
 		) {
-			console.log('You win with a diagonal line!');
+			gameBoard.gameOver = true;
+			displayController.updateMsg('diagonal');
 		}
 	};
 
@@ -82,7 +97,7 @@ const gameBoard = (() => {
 		let emptySquare = board.indexOf('');
 		if (emptySquare == -1) {
 			gameOver = true;
-			console.log('All out of play spaces');
+			displayController.updateMsg('draw');
 		}
 	};
 
@@ -99,10 +114,8 @@ const gameBoard = (() => {
 // DOM manipulation module
 const displayController = (() => {
 	// DOM elements
-	const squares = document.querySelectorAll('.squares');
-
-	// const messageDisplay
-	// const refreshBtn
+	const squares = document.querySelectorAll('.square');
+	const btnReset = document.querySelector('.resetGame');
 
 	// Click element for squares
 	squares.forEach((square) => {
@@ -124,16 +137,58 @@ const displayController = (() => {
 				'This spot has already been chosen by the other player! Select another square'
 			);
 		}
-		e.target.innerHTML = `<i class="fa-regular fa-${players.currentPlayer.marker}"></i>`;
-		e.target.dataset.owner = players.currentPlayer.name;
-		gameBoard.boardMarker(players.currentPlayer.name, squareIndex(e));
+		if (gameBoard.gameOver == false) {
+			e.target.innerHTML = `<img src="./icons/${players.currentPlayer.marker}-regular.svg">`;
+			e.target.dataset.owner = players.currentPlayer.name;
+			gameBoard.boardMarker(players.currentPlayer.name, squareIndex(e));
+		}
 		gameBoard.winConditions();
 		gameBoard.drawCondition();
-		players.switchActivePlayer();
+		console.log(gameBoard.gameOver);
+		if (gameBoard.gameOver == false) {
+			players.switchActivePlayer();
+			updateMsg('switchPlayer');
+		}
 	};
 
-	// Message
-	// Clear game screen
+	// Empty squares
+	const clearSquares = () => {
+		squares.forEach((square) => {
+			square.innerHTML = '';
+			delete square.dataset.owner;
+		});
+	};
 
-	return { squareIndex };
+	// Update message
+	const updateMsg = (msg) => {
+		const msgBox = document.querySelector('.info p');
+		if (msg === 'horizontal') {
+			msgBox.textContent = `${players.currentPlayer.name} wins with a horizontal line!`;
+		}
+		if (msg === 'vertical') {
+			msgBox.textContent = `${players.currentPlayer.name} wins with a vertical line!`;
+		}
+		if (msg === 'diagonal') {
+			msgBox.textContent = `${players.currentPlayer.name} wins with a diagonal line!`;
+		}
+		if (msg === 'draw') {
+			msgBox.textContent = 'All out of play spaces. Reset the game';
+		}
+		if (msg === 'switchPlayer' || msg === 'resetPlayer') {
+			msgBox.innerHTML = `Next: ${players.currentPlayer.name} <img src="./icons/${players.currentPlayer.marker}-regular.svg">`;
+		}
+	};
+	updateMsg('resetPlayer');
+
+	// Clear game screen and reset
+	const resetDOMBoard = () => {
+		clearSquares();
+		gameBoard.resetBoard();
+		players.resetActivePlayer();
+		updateMsg('resetPlayer');
+		gameBoard.gameOver = false;
+	};
+	btnReset.addEventListener('click', resetDOMBoard);
+
+	return { squareIndex, updateMsg };
 })();
