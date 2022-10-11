@@ -1,87 +1,68 @@
 'use strict';
 
-// Gameboard creation
-const gameBoard = () => {
-	// Generating the board array
-	let board = [];
-	for (let i = 0; i < 9; i++) {
-		board.push('');
-	}
+// Reference
+//https://github.com/ken862734801/Tic-Tac-Toe/blob/main/script.js
 
-	// Inserting board into DOM
-	const squares = document.querySelector('.squares');
-	board.forEach((square, i) => {
-		square = document.createElement('div');
-		square.className = 'square';
-		squares.appendChild(square);
-		square.addEventListener('click', playerClick);
-	});
-	return board;
-};
-
-// Checking for clicks on the board
-const playerClick = (e) => {
-	const squareOwner = e.target.dataset.owner;
-	if (squareOwner) {
-		return console.log(
-			'This spot has already been chosen by the other player! Select another square'
-		);
-	} else {
-		e.target.dataset.owner = game.activePlayer.name;
-		e.target.innerHTML = `<i class="fa-regular fa-${game.activePlayer.marker}"></i>`;
-	}
-	console.log(gameBoard.board);
-	game.checkWin();
-	game.changePlayer();
-};
-// Event listener
-// Array.from(squares.children).forEach((square, i) => {
-// 	square.addEventListener('click', () => {
-// 		// If square has already been clicked, return an error message and make user select again.
-// 		if (square.dataset.owner) {
-// 			return console.log(
-// 				'This spot has already been chosen! Select another square'
-// 			);
-// 		}
-// 		// Adds player to board array
-// 		board[i] = game.activePlayer.name;
-
-// 		// DOM adjustments
-// 		square.dataset.owner = game.activePlayer.name;
-// 		square.innerHTML = `<i class="fa-regular fa-${game.activePlayer.marker}"></i>`;
-
-// 		// Check for a win
-// 		game.checkWin();
-// 		game.changePlayer();
-// 	});
-// });
-
-const game = (() => {
-	// Player creation
+// Players module
+const players = (() => {
+	// Player creation factory function
 	const playerCreator = (name, marker) => {
 		return { name, marker };
 	};
 	const player1 = playerCreator('Player 1', 'xmark');
 	const player2 = playerCreator('Player 2', 'circle');
+	let currentPlayer = player1;
 
-	// Initial state
-	let activePlayer = player1;
-
-	// Change players
-	function changePlayer() {
-		this.activePlayer === player1
-			? (this.activePlayer = player2)
-			: (this.activePlayer = player1);
-	}
-
-	// Check for a game win
-	function checkWin() {}
-
-	return {
-		activePlayer,
-		changePlayer,
-		checkWin,
+	let switchActivePlayer = () => {
+		if (players.currentPlayer === players.player1) {
+			players.currentPlayer = players.player2;
+			console.log(`Next turn: Player 2`);
+		} else {
+			players.currentPlayer = players.player1;
+			console.log(`Next turn: Player 1`);
+		}
 	};
+
+	return { player1, player2, currentPlayer, switchActivePlayer };
 })();
 
-gameBoard();
+// Game variables module
+const gameBoard = (() => {
+	// Generating the board array
+	let board = new Array(9).fill('');
+
+	let gameOver = false;
+
+	return { board, gameOver };
+})();
+
+// DOM manipulation module
+const displayController = (() => {
+	// DOM elements
+	const squares = document.querySelectorAll('.squares');
+	// const messageDisplay
+	// const refreshBtn
+
+	// Click element for squares
+	squares.forEach((square) => {
+		square.addEventListener('click', (e) => {
+			drawSquare(e);
+		});
+	});
+
+	const drawSquare = (e) => {
+		// Check if this square is already taken
+		if (e.target.innerHTML) {
+			return console.log(
+				'This spot has already been chosen by the other player! Select another square'
+			);
+		}
+		e.target.innerHTML = `<i class="fa-regular fa-${players.currentPlayer.marker}"></i>`;
+		e.target.dataset.owner = players.currentPlayer.name;
+		players.switchActivePlayer();
+	};
+
+	// Message
+
+	// Clear game screen
+})();
